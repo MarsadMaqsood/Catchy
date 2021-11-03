@@ -14,27 +14,28 @@
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
+        <activity
+            android:name=".chat.ChatActivity"
+            android:exported="true" />
+        <activity
+            android:name=".chat.ChatUsersActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ViewStoryActivity"
+            android:exported="true" />
+        <activity android:name=".StoryAddActivity" />
         <activity android:name=".PostViewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-        <intent-filter>
-
-            <action android:name="android.intent.action.VIEW"/>
-
-            <category android:name="android.intent.category.DEFAULT"/>
-
-            <category android:name="android.intent.category.BROWSABLE"/>
-
-            <data android:host="firebasestorage.googleapis.com"
-                android:scheme="https"/>
-
-        </intent-filter>
-
-
+                <data
+                    android:host="firebasestorage.googleapis.com"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
-
         <activity android:name=".ReplacerActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>
