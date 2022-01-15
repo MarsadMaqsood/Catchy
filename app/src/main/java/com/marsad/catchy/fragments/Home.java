@@ -55,7 +55,7 @@ public class Home extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -65,7 +65,6 @@ public class Home extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
-
 
         list = new ArrayList<>();
         adapter = new HomeAdapter(list, getActivity());
@@ -83,9 +82,9 @@ public class Home extends Fragment {
                         .document(id);
 
                 if (likeList.contains(user.getUid())) {
-                    likeList.remove(user.getUid()); //unlike
+                    likeList.remove(user.getUid()); // unlike
                 } else {
-                    likeList.add(user.getUid()); //like
+                    likeList.add(user.getUid()); // like
                 }
 
                 Map<String, Object> map = new HashMap<>();
@@ -111,12 +110,10 @@ public class Home extends Fragment {
 
                 });
 
-
             }
         });
 
-
-        view.findViewById(R.id.sendBtn).setOnClickListener(v->{
+        view.findViewById(R.id.sendBtn).setOnClickListener(v -> {
 
             Intent intent = new Intent(getActivity(), ChatUsersActivity.class);
             startActivity(intent);
@@ -137,7 +134,8 @@ public class Home extends Fragment {
 
         storiesRecyclerView = view.findViewById(R.id.storiesRecyclerView);
         storiesRecyclerView.setHasFixedSize(true);
-        storiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        storiesRecyclerView
+                .setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         storiesModelList = new ArrayList<>();
         storiesModelList.add(new StoriesModel("", "", "", "", ""));
@@ -183,7 +181,6 @@ public class Home extends Fragment {
 
                         for (QueryDocumentSnapshot snapshot : value1) {
 
-
                             snapshot.getReference().collection("Post Images")
                                     .addSnapshotListener((value11, error11) -> {
 
@@ -211,8 +208,7 @@ public class Home extends Fragment {
                                                     model.getDescription(),
                                                     model.getId(),
                                                     model.getTimestamp(),
-                                                    model.getLikes()
-                                            ));
+                                                    model.getLikes()));
 
                                             snapshot1.getReference().collection("Comments").get()
                                                     .addOnCompleteListener(task -> {
@@ -221,34 +217,37 @@ public class Home extends Fragment {
 
                                                             int count = 0;
 
-                                                            for (QueryDocumentSnapshot snapshot11 : task.getResult()) {
-                                                                count++;
+                                                            // for (QueryDocumentSnapshot snapshot11 : task.getResult())
+                                                            // {
+                                                            // count++;
+                                                            // }
+                                                            // commentCount.setValue(count);
+
+                                                            Map<String, Object> map = new HashMap<>();
+                                                            for (QueryDocumentSnapshot commentSnapshot : task
+                                                                    .getResult()) {
+                                                                map = commentSnapshot.getData();
                                                             }
-                                                            commentCount.setValue(count);
-                                                            //comment count
+
+                                                            commentCount.setValue(map.size());
 
                                                         }
 
                                                     });
 
-
                                         }
                                         adapter.notifyDataSetChanged();
 
-
                                     });
-
 
                         }
 
                     });
 
-
-            //todo: fetch stories
+            // todo: fetch stories
             loadStories(uidList);
 
         });
-
 
     }
 
@@ -256,7 +255,6 @@ public class Home extends Fragment {
 
         Query query = FirebaseFirestore.getInstance().collection("Stories");
         query.whereIn("uid", followingList).addSnapshotListener((value, error) -> {
-
 
             if (error != null) {
                 Log.d("Error: ", error.getMessage());
@@ -278,6 +276,5 @@ public class Home extends Fragment {
         });
 
     }
-
 
 }
