@@ -15,6 +15,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.marsad.catchy.adapter.ViewPagerAdapter;
 import com.marsad.catchy.fragments.Search;
@@ -22,7 +23,9 @@ import com.marsad.catchy.fragments.Search;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
     public static String USER_ID;
     public static boolean IS_SEARCHED_USER = false;
     ViewPagerAdapter pagerAdapter;
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
@@ -53,10 +57,20 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
 
     private void addTabs() {
 
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_home));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
+//        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_home));
+//        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
+//        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
+//        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
+
+        List<Integer> drawableResList = new ArrayList<>();
+        drawableResList.add(R.drawable.ic_home);
+        drawableResList.add(R.drawable.ic_search);
+        drawableResList.add(R.drawable.ic_add);
+        drawableResList.add(R.drawable.ic_heart);
+
+        for (int i = 0; i < 4; i++) {
+            tabLayout.addTab(tabLayout.newTab().setIcon(drawableResList.get(i)));
+        }
 
 
         SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
@@ -86,24 +100,22 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                 switch (tab.getPosition()) {
 
                     case 0:
-                        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home_fill);
+//                        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home_fill);
+                        tab.setIcon(R.drawable.ic_home_fill);
                         break;
 
                     case 1:
-                        tabLayout.getTabAt(1).setIcon(R.drawable.ic_search);
+                        tab.setIcon(R.drawable.ic_search);
                         break;
 
                     case 2:
-                        tabLayout.getTabAt(2).setIcon(R.drawable.ic_add);
+                        tab.setIcon(R.drawable.ic_add);
                         break;
 
                     case 3:
-                        tabLayout.getTabAt(3).setIcon(R.drawable.ic_heart_fill);
+                        tab.setIcon(R.drawable.ic_heart_fill);
                         break;
 
-//                    case 4:
-//                        tabLayout.getTabAt(4).setIcon(android.R.drawable.ic_menu_help);
-//                        break;
 
                 }
 
@@ -115,24 +127,21 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                 switch (tab.getPosition()) {
 
                     case 0:
-                        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home);
+                        tab.setIcon(R.drawable.ic_home);
                         break;
 
                     case 1:
-                        tabLayout.getTabAt(1).setIcon(R.drawable.ic_search);
+                        tab.setIcon(R.drawable.ic_search);
                         break;
 
                     case 2:
-                        tabLayout.getTabAt(2).setIcon(R.drawable.ic_add);
+                        tab.setIcon(R.drawable.ic_add);
                         break;
 
                     case 3:
-                        tabLayout.getTabAt(3).setIcon(R.drawable.ic_heart);
+                        tab.setIcon(R.drawable.ic_heart);
                         break;
 
-//                    case 4:
-//                        tabLayout.getTabAt(4).setIcon(R.drawable.ic_heart_fill);
-//                        break;
 
                 }
 
@@ -144,24 +153,21 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                 switch (tab.getPosition()) {
 
                     case 0:
-                        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home_fill);
+                        tab.setIcon(R.drawable.ic_home_fill);
                         break;
 
                     case 1:
-                        tabLayout.getTabAt(1).setIcon(R.drawable.ic_search);
+                        tab.setIcon(R.drawable.ic_search);
                         break;
 
                     case 2:
-                        tabLayout.getTabAt(2).setIcon(R.drawable.ic_add);
+                        tab.setIcon(R.drawable.ic_add);
                         break;
 
                     case 3:
-                        tabLayout.getTabAt(3).setIcon(R.drawable.ic_heart_fill);
-                        break;
 
-//                    case 4:
-//                        tabLayout.getTabAt(4).setIcon(android.R.drawable.ic_menu_help);
-//                        break;
+                        tab.setIcon(R.drawable.ic_heart_fill);
+                        break;
 
                 }
 
@@ -190,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         viewPager.setCurrentItem(4);
     }
 
-
     @Override
     public void onBackPressed() {
 
@@ -200,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         } else
             super.onBackPressed();
     }
-
 
     @Override
     protected void onResume() {
@@ -221,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
 
         FirebaseFirestore.getInstance()
                 .collection("Users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .document(user.getUid())
                 .update(map);
     }
 

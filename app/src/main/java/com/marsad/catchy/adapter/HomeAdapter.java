@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -110,8 +109,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     public interface OnPressed {
         void onLiked(int position, String id, String uid, List<String> likeList, boolean isChecked);
 
-//        void onComment(int position, String id, String uid, String comment, LinearLayout commentLayout, EditText commentET);
-
         void setCommentCount(TextView textView);
 
     }
@@ -153,39 +150,26 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
         public void clickListener(final int position, final String id, String name, final String uid, final List<String> likes, final String imageUrl) {
 
-            commentBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            commentBtn.setOnClickListener(v -> {
 
-                    Intent intent = new Intent(context, ReplacerActivity.class);
-                    intent.putExtra("id", id);
-                    intent.putExtra("uid", uid);
-                    intent.putExtra("isComment", true);
+                Intent intent = new Intent(context, ReplacerActivity.class);
+                intent.putExtra("id", id);
+                intent.putExtra("uid", uid);
+                intent.putExtra("isComment", true);
 
-                    context.startActivity(intent);
+                context.startActivity(intent);
 
-                }
             });
 
-            likeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            likeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> onPressed.onLiked(position, id, uid, likes, isChecked));
 
-                    onPressed.onLiked(position, id, uid, likes, isChecked);
+            shareBtn.setOnClickListener(v -> {
 
-                }
-            });
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_TEXT, imageUrl);
+                intent.setType("text/*");
+                context.startActivity(Intent.createChooser(intent, "Share link using..."));
 
-            shareBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.putExtra(Intent.EXTRA_TEXT, imageUrl);
-                    intent.setType("text/*");
-                    context.startActivity(Intent.createChooser(intent, "Share link using..."));
-
-                }
             });
 
 

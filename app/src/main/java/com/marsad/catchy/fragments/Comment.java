@@ -78,76 +78,69 @@ public class Comment extends Fragment {
 
     private void clickListener() {
 
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        sendBtn.setOnClickListener(v -> {
 
-                String comment = commentEt.getText().toString();
+            String comment = commentEt.getText().toString();
 
-                if (comment.isEmpty()) {
-                    Toast.makeText(getContext(), "Enter comment", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-
-                String commentID = reference.document().getId();
-
-                Map<String, Object> map = new HashMap<>();
-                map.put("uid", user.getUid());
-                map.put("comment", comment);
-                map.put("commentID", commentID);
-                map.put("postID", id);
-
-                map.put("name", user.getDisplayName());
-                map.put("profileImageUrl", user.getPhotoUrl().toString());
-
-                reference.document(commentID)
-                        .set(map)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                if (task.isSuccessful()) {
-
-                                    commentEt.setText("");
-
-                                } else {
-
-                                    Toast.makeText(getContext(), "Failed to comment:" + task.getException().getMessage(),
-                                            Toast.LENGTH_SHORT).show();
-
-                                }
-
-                            }
-                        });
-
+            if (comment.isEmpty()) {
+                Toast.makeText(getContext(), "Enter comment", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+
+            String commentID = reference.document().getId();
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("uid", user.getUid());
+            map.put("comment", comment);
+            map.put("commentID", commentID);
+            map.put("postID", id);
+
+            map.put("name", user.getDisplayName());
+            map.put("profileImageUrl", user.getPhotoUrl().toString());
+
+            reference.document(commentID)
+                    .set(map)
+                    .addOnCompleteListener(task -> {
+
+                        if (task.isSuccessful()) {
+
+                            commentEt.setText("");
+
+                        } else {
+
+                            assert  task.getException() != null;
+                            Toast.makeText(getContext(), "Failed to comment:" + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+
+                    });
+
         });
 
     }
 
     private void loadCommentData() {
 
-        reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+        reference.addSnapshotListener((value, error) -> {
 
-                if (error != null)
-                    return;
+            if (error != null)
+                return;
 
-                if (value == null) {
-                    Toast.makeText(getContext(), "No Comments", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            if (value == null) {
+                Toast.makeText(getContext(), "No Comments", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                for (DocumentSnapshot snapshot : value) {
+            for (DocumentSnapshot snapshot : value) {
 
-                    CommentModel model = snapshot.toObject(CommentModel.class);
-                    list.add(model);
-                }
-                commentAdapter.notifyDataSetChanged();
+                CommentModel model = snapshot.toObject(CommentModel.class);
+                list.add(model);
 
             }
+            commentAdapter.notifyDataSetChanged();
+
         });
 
     }

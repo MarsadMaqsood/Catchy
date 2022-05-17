@@ -48,6 +48,7 @@ public class Home extends Fragment {
     private RecyclerView recyclerView;
     private List<HomeModel> list;
     private FirebaseUser user;
+    Activity activity;
 
     public Home() {
         // Required empty public constructor
@@ -63,6 +64,8 @@ public class Home extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        activity = getActivity();
 
         init(view);
 
@@ -97,16 +100,22 @@ public class Home extends Fragment {
             @Override
             public void setCommentCount(final TextView textView) {
 
-                Activity activity = getActivity();
-
                 commentCount.observe((LifecycleOwner) activity, integer -> {
+
+                    assert commentCount.getValue() != null;
 
                     if (commentCount.getValue() == 0) {
                         textView.setVisibility(View.GONE);
                     } else
                         textView.setVisibility(View.VISIBLE);
 
-                    textView.setText("See all " + commentCount.getValue() + " comments");
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("See all")
+                            .append(commentCount.getValue())
+                            .append(" comments");
+
+                    textView.setText(builder);
+//                    textView.setText("See all " + commentCount.getValue() + " comments");
 
                 });
 
@@ -214,14 +223,6 @@ public class Home extends Fragment {
                                                     .addOnCompleteListener(task -> {
 
                                                         if (task.isSuccessful()) {
-
-                                                            int count = 0;
-
-                                                            // for (QueryDocumentSnapshot snapshot11 : task.getResult())
-                                                            // {
-                                                            // count++;
-                                                            // }
-                                                            // commentCount.setValue(count);
 
                                                             Map<String, Object> map = new HashMap<>();
                                                             for (QueryDocumentSnapshot commentSnapshot : task
