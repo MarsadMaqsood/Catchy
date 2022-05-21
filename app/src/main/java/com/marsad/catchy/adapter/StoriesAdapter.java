@@ -57,14 +57,8 @@ public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesH
                     .load(activity.getResources().getDrawable(R.drawable.ic_add))
                     .into(holder.imageView);
 
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    activity.startActivity(new Intent(activity, StoryAddActivity.class));
-
-                }
-            });
+            holder.imageView.setOnClickListener(v ->
+                    activity.startActivity(new Intent(activity, StoryAddActivity.class)));
 
         }else {
 
@@ -75,7 +69,7 @@ public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesH
 
             holder.imageView.setOnClickListener(v -> {
 
-                if (position == 0) {
+                if (holder.getAbsoluteAdapterPosition() == 0) {
                     //new story
 
                     Dexter.withContext(activity)

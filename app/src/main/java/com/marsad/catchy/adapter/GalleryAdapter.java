@@ -18,7 +18,7 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryHolder> {
 
     SendImage onSendImage;
-    private List<GalleryImages> list;
+    List<GalleryImages> list;
 
     public GalleryAdapter(List<GalleryImages> list) {
         this.list = list;
@@ -32,19 +32,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
         return new GalleryHolder(view);
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull GalleryHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull GalleryHolder holder, int position) {
 
         Glide.with(holder.itemView.getContext().getApplicationContext())
                 .load(list.get(position).getPicUri())
                 .into(holder.imageView);
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chooseImage(list.get(position).getPicUri());
-            }
-        });
+        holder.imageView.setOnClickListener(v -> chooseImage(list.get(holder.getAbsoluteAdapterPosition()).getPicUri()));
 
     }
 
@@ -68,9 +64,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
         void onSend(Uri picUri);
     }
 
-    class GalleryHolder extends RecyclerView.ViewHolder {
+    static class GalleryHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imageView;
+        ImageView imageView;
 
         public GalleryHolder(@NonNull View itemView) {
             super(itemView);

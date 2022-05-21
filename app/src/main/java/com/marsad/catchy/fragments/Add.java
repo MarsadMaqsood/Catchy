@@ -1,5 +1,7 @@
 package com.marsad.catchy.fragments;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
@@ -22,9 +24,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -49,8 +47,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.app.Activity.RESULT_OK;
 
 
 public class Add extends Fragment {
@@ -98,48 +94,30 @@ public class Add extends Fragment {
 
     private void clickListener() {
 
-        adapter.SendImage(new GalleryAdapter.SendImage() {
-            @Override
-            public void onSend(Uri picUri) {
+        adapter.SendImage(picUri -> CropImage.activity(picUri)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setAspectRatio(4, 3)
+                .start(getContext(), Add.this));
 
-                CropImage.activity(picUri)
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(4, 3)
-                        .start(getContext(), Add.this);
+        nextBtn.setOnClickListener(v -> {
 
-            }
-        });
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            final StorageReference storageReference = storage.getReference().child("Post Images/" + System.currentTimeMillis());
 
-        nextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            dialog.show();
 
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                final StorageReference storageReference = storage.getReference().child("Post Images/" + System.currentTimeMillis());
+            storageReference.putFile(imageUri)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
 
-                dialog.show();
+                            storageReference.getDownloadUrl().addOnSuccessListener(uri -> uploadData(uri.toString()));
 
-                storageReference.putFile(imageUri)
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                if (task.isSuccessful()) {
+                        } else {
+                            dialog.dismiss();
+                            Toast.makeText(getContext(), "Failed to upload post", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            uploadData(uri.toString());
-                                        }
-                                    });
-
-                                } else {
-                                    dialog.dismiss();
-                                    Toast.makeText(getContext(), "Failed to upload post", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-            }
         });
 
     }
@@ -170,19 +148,16 @@ public class Add extends Fragment {
         map.put("uid", user.getUid());
 
         reference.document(id).set(map)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            System.out.println();
-                            Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        dialog.dismiss();
-
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        System.out.println();
+                        Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
+                    dialog.dismiss();
+
                 });
 
     }
@@ -209,52 +184,45 @@ public class Add extends Fragment {
     public void onResume() {
         super.onResume();
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        getActivity().runOnUiThread(() -> Dexter.withContext(getContext())
+                .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
 
-                Dexter.withContext(getContext())
-                        .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if (report.areAllPermissionsGranted()) {
+                            File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download");
 
-                                if (report.areAllPermissionsGranted()) {
-                                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download");
+                            if (file.exists()) {
+                                File[] files = file.listFiles();
+                                assert files != null;
 
-                                    if (file.exists()) {
-                                        File[] files = file.listFiles();
-                                        assert files != null;
+                                list.clear();
 
-                                        list.clear();
+                                for (File file1 : files) {
 
-                                        for (File file1 : files) {
+                                    if (file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")) {
 
-                                            if (file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")) {
-
-                                                list.add(new GalleryImages(Uri.fromFile(file1)));
-                                                adapter.notifyDataSetChanged();
-
-                                            }
-
-                                        }
-
+                                        list.add(new GalleryImages(Uri.fromFile(file1)));
+                                        adapter.notifyDataSetChanged();
 
                                     }
 
                                 }
 
-                            }
-
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
 
                             }
-                        }).check();
 
-            }
-        });
+                        }
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                    }
+                }).check());
 
     }
 

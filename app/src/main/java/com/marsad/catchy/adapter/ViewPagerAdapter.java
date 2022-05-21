@@ -16,7 +16,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     int noOfTabs;
 
     public ViewPagerAdapter(@NonNull FragmentManager fm, int noOfTabs) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.noOfTabs = noOfTabs;
     }
 
@@ -26,9 +26,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position){
 
-            case 0:
-                return new Home();
-
+            default:
+                case 0:
+                    return new Home();
 
             case 1:
                 return new Search();
@@ -42,8 +42,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             case 4:
                 return new Profile();
 
-            default:
-                return null;
 
         }
 

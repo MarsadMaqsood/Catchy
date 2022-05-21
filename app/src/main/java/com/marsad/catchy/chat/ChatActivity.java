@@ -6,25 +6,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.marsad.catchy.R;
 import com.marsad.catchy.adapter.ChatAdapter;
 import com.marsad.catchy.model.ChatModel;
@@ -95,14 +88,11 @@ public class ChatActivity extends AppCompatActivity {
 
 
             reference.document(chatID).collection("Messages").document(messageID).set(messageMap)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                chatET.setText("");
-                            } else {
-                                Toast.makeText(ChatActivity.this, "Something went wrong !", Toast.LENGTH_SHORT).show();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            chatET.setText("");
+                        } else {
+                            Toast.makeText(ChatActivity.this, "Something went wrong !", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -141,17 +131,20 @@ public class ChatActivity extends AppCompatActivity {
                     if (error != null)
                         return;
 
+                    if (value == null)
+                        return;
+
+
                     if (!value.exists())
                         return;
 
                     //
-                    boolean isOnline = value.getBoolean("online");
+                    boolean isOnline = Boolean.TRUE.equals(value.getBoolean("online"));
                     status.setText(isOnline ? "Online" : "Offline");
 
                     Glide.with(getApplicationContext()).load(value.getString("profileImage")).into(imageView);
 
                     name.setText(value.getString("name"));
-
 
 
                 });
@@ -170,24 +163,22 @@ public class ChatActivity extends AppCompatActivity {
 
         reference
                 .orderBy("time", Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                .addSnapshotListener((value, error) -> {
 
 
-                        if (error != null) return;
+                    if (error != null) return;
 
-                        if (value == null || value.isEmpty()) return;
+                    if (value == null || value.isEmpty()) return;
 
-                        list.clear();
+                    list.clear();
 
-                        for (QueryDocumentSnapshot snapshot : value) {
-                            ChatModel model = snapshot.toObject(ChatModel.class);
-                            list.add(model);
-                        }
-                        adapter.notifyDataSetChanged();
+                    for (QueryDocumentSnapshot snapshot : value) {
+                        ChatModel model = snapshot.toObject(ChatModel.class);
+                        list.add(model);
 
                     }
+                    adapter.notifyDataSetChanged();
+
                 });
 
     }

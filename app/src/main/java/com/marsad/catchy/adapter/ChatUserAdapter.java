@@ -56,11 +56,8 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.ChatUs
 
         holder.lastMessage.setText(list.get(position).getLastMessage());
 
-        holder.itemView.setOnClickListener(v -> {
-
-            startChat.clicked(position, list.get(position).getUid(), list.get(position).getId());
-
-        });
+        holder.itemView.setOnClickListener(v ->
+                startChat.clicked(position, list.get(position).getUid(), list.get(position).getId()));
 
     }
 
@@ -77,6 +74,7 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.ChatUs
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+        assert user != null;
         if (!uids.get(0).equalsIgnoreCase(user.getUid())) {
             oppositeUID = uids.get(0);
         } else {

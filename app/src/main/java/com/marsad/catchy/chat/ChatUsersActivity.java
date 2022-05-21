@@ -66,6 +66,11 @@ public class ChatUsersActivity extends AppCompatActivity {
                     if (error != null)
                         return;
 
+                    if (value == null)
+                        return;
+
+
+
                     if (value.isEmpty())
                         return;
 
@@ -90,24 +95,19 @@ public class ChatUsersActivity extends AppCompatActivity {
 
     void clickListener() {
 
-        adapter.OnStartChat(new ChatUserAdapter.OnStartChat() {
-            @Override
-            public void clicked(int position, List<String> uids, String chatID) {
+        adapter.OnStartChat((position, uids, chatID) -> {
 
-                String oppositeUID;
-                if (!uids.get(0).equalsIgnoreCase(user.getUid())) {
-                    oppositeUID = uids.get(0);
-                } else {
-                    oppositeUID = uids.get(1);
-                }
-
-                Intent intent = new Intent(ChatUsersActivity.this, ChatActivity.class);
-                intent.putExtra("uid", oppositeUID);
-                intent.putExtra("id", chatID);
-                startActivity(intent);
-
-
+            String oppositeUID;
+            if (!uids.get(0).equalsIgnoreCase(user.getUid())) {
+                oppositeUID = uids.get(0);
+            } else {
+                oppositeUID = uids.get(1);
             }
+
+            Intent intent = new Intent(ChatUsersActivity.this, ChatActivity.class);
+            intent.putExtra("uid", oppositeUID);
+            intent.putExtra("id", chatID);
+            startActivity(intent);
 
 
         });

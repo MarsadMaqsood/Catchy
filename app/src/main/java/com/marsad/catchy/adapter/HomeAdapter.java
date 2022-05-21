@@ -1,5 +1,6 @@
 package com.marsad.catchy.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -45,6 +46,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         return new HomeHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull HomeHolder holder, int position) {
 
@@ -66,6 +68,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         }
 
         //check if already like
+        assert user != null;
         holder.likeCheckBox.setChecked(likeList.contains(user.getUid()));
 
         holder.descriptionTv.setText(list.get(position).getDescription());
@@ -121,7 +124,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         private final TextView timeTv;
         private final TextView likeCountTv;
         private final TextView descriptionTv;
-        private final TextView commentTV;
         private final ImageView imageView;
         private final CheckBox likeCheckBox;
         private final ImageButton commentBtn;
@@ -141,7 +143,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
             shareBtn = itemView.findViewById(R.id.shareBtn);
             descriptionTv = itemView.findViewById(R.id.descTv);
 
-            commentTV = itemView.findViewById(R.id.commentTV);
+            TextView commentTV = itemView.findViewById(R.id.commentTV);
 
 
             onPressed.setCommentCount(commentTV);

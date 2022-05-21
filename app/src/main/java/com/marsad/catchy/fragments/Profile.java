@@ -8,6 +8,7 @@ import static com.marsad.catchy.utils.Constants.PREF_NAME;
 import static com.marsad.catchy.utils.Constants.PREF_STORED;
 import static com.marsad.catchy.utils.Constants.PREF_URL;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -44,24 +45,18 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.marsad.catchy.R;
 import com.marsad.catchy.chat.ChatActivity;
 import com.marsad.catchy.model.PostImageModel;
@@ -85,7 +80,7 @@ public class Profile extends Fragment {
     boolean isMyProfile = true;
     String userUID;
     FirestoreRecyclerAdapter<PostImageModel, PostImageHolder> adapter;
-    List<Object> followersList, followingList, followingList_2;
+    List<String> followersList, followingList, followingList_2;
     boolean isFollowed;
     DocumentReference userRef, myRef;
     int count;
@@ -109,6 +104,7 @@ public class Profile extends Fragment {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -160,27 +156,25 @@ public class Profile extends Fragment {
 
     private void loadData() {
 
-        myRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+        myRef.addSnapshotListener((value, error) -> {
 
-                if (error != null) {
-                    Log.e("Tag_b", error.getMessage());
-                    return;
-                }
-
-                if (value == null || !value.exists()) {
-                    return;
-                }
-
-                followingList_2 = (List<Object>) value.get("following");
-
-
+            if (error != null) {
+                Log.e("Tag_b", error.getMessage());
+                return;
             }
+
+            if (value == null || !value.exists()) {
+                return;
+            }
+
+            followingList_2 = (List<String>) value.get("following");
+
+
         });
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void clickListener() {
 
 
@@ -200,26 +194,22 @@ public class Profile extends Fragment {
                 map.put("followers", followersList);
 
 
-                userRef.update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            followBtn.setText("Follow");
+                userRef.update(map).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        followBtn.setText("Follow");
 
-                            myRef.update(map_2).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Log.e("Tag_3", task.getException().getMessage());
-                                    }
-                                }
-                            });
+                        myRef.update(map_2).addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                assert task1.getException() != null;
+                                Log.e("Tag_3", task1.getException().getMessage());
+                            }
+                        });
 
-                        } else {
-                            Log.e("Tag", "" + task.getException().getMessage());
-                        }
+                    } else {
+                        assert task.getException() != null;
+                        Log.e("Tag", "" + task.getException().getMessage());
                     }
                 });
 
@@ -240,27 +230,23 @@ public class Profile extends Fragment {
                 map.put("followers", followersList);
 
 
-                userRef.update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            followBtn.setText("UnFollow");
+                userRef.update(map).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        followBtn.setText("UnFollow");
 
-                            myRef.update(map_2).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Log.e("tag_3_1", task.getException().getMessage());
-                                    }
-                                }
-                            });
+                        myRef.update(map_2).addOnCompleteListener(task12 -> {
+                            if (task12.isSuccessful()) {
+                                Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                assert task12.getException() != null;
+                                Log.e("tag_3_1", task12.getException().getMessage());
+                            }
+                        });
 
 
-                        } else {
-                            Log.e("Tag", "" + task.getException().getMessage());
-                        }
+                    } else {
+                        assert task.getException() != null;
+                        Log.e("Tag", "" + task.getException().getMessage());
                     }
                 });
 
@@ -269,6 +255,7 @@ public class Profile extends Fragment {
 
         });
 
+        assert getContext() != null;
 
         editProfileBtn.setOnClickListener(v -> CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
@@ -284,6 +271,7 @@ public class Profile extends Fragment {
 
     void queryChat() {
 
+        assert getContext() != null;
         StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
         alertDialog.setTitleText("Starting Chat...");
         alertDialog.setCancellable(false);
@@ -293,30 +281,30 @@ public class Profile extends Fragment {
         reference.whereArrayContains("uid", userUID)
                 .get().addOnCompleteListener(task -> {
 
-            if (task.isSuccessful()) {
+                    if (task.isSuccessful()) {
 
-                QuerySnapshot snapshot = task.getResult();
+                        QuerySnapshot snapshot = task.getResult();
 
-                if (snapshot.isEmpty()) {
-                    startChat(alertDialog);
-                } else {
-                    //get chatId and pass
-                    alertDialog.dismissWithAnimation();
-                    for (DocumentSnapshot snapshotChat : snapshot) {
+                        if (snapshot.isEmpty()) {
+                            startChat(alertDialog);
+                        } else {
+                            //get chatId and pass
+                            alertDialog.dismissWithAnimation();
+                            for (DocumentSnapshot snapshotChat : snapshot) {
 
-                        Intent intent = new Intent(getActivity(), ChatActivity.class);
-                        intent.putExtra("uid", userUID);
-                        intent.putExtra("id", snapshotChat.getId()); //return doc id
-                        startActivity(intent);
-                    }
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                intent.putExtra("uid", userUID);
+                                intent.putExtra("id", snapshotChat.getId()); //return doc id
+                                startActivity(intent);
+                            }
 
 
-                }
+                        }
 
-            } else
-                alertDialog.dismissWithAnimation();
+                    } else
+                        alertDialog.dismissWithAnimation();
 
-        });
+                });
 
     }
 
@@ -339,9 +327,7 @@ public class Profile extends Fragment {
         map.put("uid", list);
 
         reference.document(pushID).update(map).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-
-            } else {
+            if (!task.isSuccessful()) {
                 reference.document(pushID).set(map);
             }
         });
@@ -402,6 +388,7 @@ public class Profile extends Fragment {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadBasicData() {
 
         userRef.addSnapshotListener((value, error) -> {
@@ -423,14 +410,16 @@ public class Profile extends Fragment {
                 toolbarNameTv.setText(name);
                 statusTv.setText(status);
 
-                followersList = (List<Object>) value.get("followers");
-                followingList = (List<Object>) value.get("following");
+                followersList = (List<String>) value.get("followers");
+                followingList = (List<String>) value.get("following");
 
 
                 followersCountTv.setText("" + followersList.size());
                 followingCountTv.setText("" + followingList.size());
 
                 try {
+
+                    assert getContext() != null;
 
                     Glide.with(getContext().getApplicationContext())
                             .load(profileURL)
@@ -494,12 +483,15 @@ public class Profile extends Fragment {
         if (IS_SEARCHED_USER)
             return;
 
-        ContextWrapper contextWrapper = new ContextWrapper(getContext().getApplicationContext());
+        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
 
         File directory = contextWrapper.getDir("image_data", Context.MODE_PRIVATE);
 
-        if (!directory.exists())
-            directory.mkdirs();
+        if (!directory.exists()) {
+            boolean isMade = directory.mkdirs();
+            Log.d("Directory", String.valueOf(isMade));
+        }
+
 
         File path = new File(directory, "profile.png");
 
@@ -531,6 +523,7 @@ public class Profile extends Fragment {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadPostImages() {
 
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users").document(userUID);
@@ -548,6 +541,7 @@ public class Profile extends Fragment {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.profile_image_items, parent, false);
                 return new PostImageHolder(view);
             }
+
 
             @Override
             protected void onBindViewHolder(@NonNull PostImageHolder holder, int position, @NonNull PostImageModel model) {
@@ -591,6 +585,9 @@ public class Profile extends Fragment {
 
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
+            if (result == null)
+                return;
+
             Uri uri = result.getUri();
 
             uploadImage(uri);
@@ -604,50 +601,45 @@ public class Profile extends Fragment {
         final StorageReference reference = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
         reference.putFile(uri)
-                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                .addOnCompleteListener(task -> {
 
-                        if (task.isSuccessful()) {
+                    if (task.isSuccessful()) {
 
-                            reference.getDownloadUrl()
-                                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            String imageURL = uri.toString();
+                        reference.getDownloadUrl()
+                                .addOnSuccessListener(uri1 -> {
+                                    String imageURL = uri1.toString();
 
-                                            UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
-                                            request.setPhotoUri(uri);
+                                    UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
+                                    request.setPhotoUri(uri1);
 
-                                            user.updateProfile(request.build());
+                                    user.updateProfile(request.build());
 
-                                            Map<String, Object> map = new HashMap<>();
-                                            map.put("profileImage", imageURL);
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("profileImage", imageURL);
 
-                                            FirebaseFirestore.getInstance().collection("Users")
-                                                    .document(user.getUid())
-                                                    .update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
+                                    FirebaseFirestore.getInstance().collection("Users")
+                                            .document(user.getUid())
+                                            .update(map).addOnCompleteListener(task1 -> {
 
-                                                    if (task.isSuccessful())
-                                                        Toast.makeText(getContext(), "Updated Successful", Toast.LENGTH_SHORT).show();
-                                                    else
-                                                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
-                                                                Toast.LENGTH_SHORT).show();
-
+                                                if (task1.isSuccessful())
+                                                    Toast.makeText(getContext(),
+                                                            "Updated Successful", Toast.LENGTH_SHORT).show();
+                                                else {
+                                                    assert task1.getException() != null;
+                                                    Toast.makeText(getContext(),
+                                                            "Error: " + task1.getException().getMessage(),
+                                                            Toast.LENGTH_SHORT).show();
                                                 }
                                             });
 
-                                        }
-                                    });
+                                });
 
-                        } else {
-                            Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
+                    } else {
+                        assert task.getException() != null;
+                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
+
                 });
 
 
@@ -671,7 +663,7 @@ public class Profile extends Fragment {
 
     private static class PostImageHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imageView;
+        ImageView imageView;
 
         public PostImageHolder(@NonNull View itemView) {
             super(itemView);
