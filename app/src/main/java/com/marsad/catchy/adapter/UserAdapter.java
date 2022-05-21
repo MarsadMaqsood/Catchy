@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.marsad.catchy.R;
 import com.marsad.catchy.model.Users;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -23,7 +24,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     OnUserClicked onUserClicked;
-    private List<Users> list;
+    List<Users> list;
 
     public UserAdapter(List<Users> list) {
         this.list = list;
@@ -55,12 +56,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
                 .timeout(6500)
                 .into(holder.profileImage);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onUserClicked.onClicked(list.get(position).getUid());
-            }
-        });
+        holder.itemView.setOnClickListener(v -> onUserClicked.onClicked(list.get(position).getUid()));
 
     }
 
@@ -79,9 +75,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
     static class UserHolder extends RecyclerView.ViewHolder {
 
-        private CircleImageView profileImage;
-        private TextView nameTV, statusTV;
-        private RelativeLayout layout;
+        CircleImageView profileImage;
+        TextView nameTV, statusTV;
+        RelativeLayout layout;
 
         public UserHolder(@NonNull View itemView) {
             super(itemView);
