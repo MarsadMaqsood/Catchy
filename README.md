@@ -59,6 +59,7 @@ firebase deploy --only functions
 - **Cloud Functions/:** Contains Firebase functions.
 
 ## Additional Resources
+- [Youtube - Coding With Marsad](https://youtube.com/playlist?list=PLFzlb57tNKUOrFIcicZ88qmaeHTA_9t_6&si=ULZvmfuD_2VKngFF)
 - [Firebase Documentation](https://firebase.google.com/docs/android/setup)
 - [Node.js](https://nodejs.org/en)
 - [Firebase CLI](https://firebase.google.com/docs/cli)
